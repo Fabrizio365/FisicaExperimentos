@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Circuitos Eléctricos Avanzado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Simulador de Circuitos Eléctricos</h1>
+            <p>Diseña, conecta y simula circuitos con análisis avanzado y visualización en tiempo real</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Panel de Herramientas -->
+            <div class="toolbar">
+                <h3>🔧 Componentes</h3>
+                <button class="component-btn" data-mode="resistor">🔲 Resistencia</button>
+                <button class="component-btn" data-mode="voltage">🔋 Fuente de Voltaje</button>
+                <button class="component-btn" data-mode="current">⚡ Fuente de Corriente</button>
+                <button class="component-btn" data-mode="capacitor">🔋 Capacitor</button>
+                <button class="component-btn" data-mode="inductor">🌀 Inductor</button>
+                <button class="component-btn" data-mode="diode">🔺 Diodo</button>
+                <button class="component-btn" data-mode="wire">📏 Cable</button>
+                <button class="component-btn" data-mode="ground">⚡ Tierra</button>
+                
+                <h3 style="margin-top: 20px;">⚙️ Controles</h3>
+                <button class="component-btn clear-btn" id="clearBtn">🗑️ Limpiar</button>
+                <button class="component-btn" data-mode="delete">❌ Eliminar</button>
+                <button class="component-btn" data-mode="move">👆 Mover</button>
+                <button class="component-btn" data-mode="rotate">🔄 Rotar</button>
+                <button class="component-btn" data-mode="select">📍 Seleccionar</button>
+                <button class="component-btn" id="undoBtn">↶ Deshacer</button>
+                <button class="component-btn" id="redoBtn">↷ Rehacer</button>
+                
+                <h3 style="margin-top: 20px;">📐 Opciones de Cable</h3>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="orthogonalWires" checked>
+                    <span>Cables Ortogonales (90°)</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="freeDrawing">
+                    <span>Dibujo Libre</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="snapToGrid" checked>
+                    <span>Alinear a Cuadrícula</span>
+                </label>
+                
+                <h3 style="margin-top: 20px;">🎨 Visualización</h3>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showCurrentFlow">
+                    <span>Mostrar Flujo de Corriente</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showVoltageNodes">
+                    <span>Mostrar Nodos de Voltaje</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="animateCurrentFlow">
+                    <span>Animar Corriente</span>
+                </label>
+            </div>
+
+            <!-- Área de Trabajo -->
+            <div class="canvas-container">
+                <canvas id="circuitCanvas" width="800" height="600"></canvas>
+                <div class="mode-indicator" id="modeIndicator">Modo: Seleccionar</div>
+                <div class="component-info" id="componentInfo"></div>
+                <div class="grid-info" id="gridInfo">Cuadrícula: 20px</div>
+                <div class="coordinates" id="coordinates">X: 0, Y: 0</div>
+            </div>
+
+            <!-- Panel de Resultados y Controles -->
+            <div class="results-panel">
+                <div class="control-group">
+                    <h4>🎛️ Editor de Componente</h4>
+                    <input type="number" id="componentValue" placeholder="Valor (Ω, V, A, F, H)" step="0.001">
+                    <input type="text" id="componentLabel" placeholder="Etiqueta personalizada">
+                    <select id="componentUnit">
+                        <option value="">Seleccionar unidad</option>
+                        <option value="Ω">Ohmios (Ω)</option>
+                        <option value="kΩ">Kiloohmios (kΩ)</option>
+                        <option value="MΩ">Megaohmios (MΩ)</option>
+                        <option value="V">Voltios (V)</option>
+                        <option value="mV">Milivoltios (mV)</option>
+                        <option value="A">Amperios (A)</option>
+                        <option value="mA">Miliamperios (mA)</option>
+                        <option value="μA">Microamperios (μA)</option>
+                        <option value="F">Faradios (F)</option>
+                        <option value="μF">Microfaradios (μF)</option>
+                        <option value="nF">Nanofaradios (nF)</option>
+                        <option value="H">Henrios (H)</option>
+                        <option value="mH">Milihenrios (mH)</option>
+                        <option value="μH">Microhenrios (μH)</option>
+                    </select>
+                    <input type="color" id="componentColor" value="#3498db" title="Color del componente">
+                    <button class="calc-btn" id="updateComponentBtn">Actualizar Componente</button>
+                </div>
+
+                <div class="control-group">
+                    <h4>🔬 Simulación Avanzada</h4>
+                    <div class="simulation-controls">
+                        <button class="calc-btn" id="playSimulation">▶️ Iniciar</button>
+                        <button class="calc-btn" id="pauseSimulation" disabled>⏸️ Pausar</button>
+                        <button class="calc-btn" id="simulateOnce">🔄 Simular Una Vez</button>
+                        <button class="calc-btn" id="resetSimulation">⏹️ Detener</button>
+                    </div>
+                    
+                    <div class="slider-control">
+                        <label>
+                            <span>Velocidad de Simulación:</span>
+                            <input type="range" id="simulationSpeed" min="100" max="3000" value="500">
+                            <span id="speedDisplay">500ms</span>
+                        </label>
+                    </div>
+                    
+                    <div class="analysis-controls">
+                        <button class="calc-btn" id="analyzeCircuit">📊 Análisis Completo</button>
+                        <button class="calc-btn" id="exportData">💾 Exportar Datos</button>
+                        <button class="calc-btn" id="importData">📂 Importar Circuito</button>
+                        <button class="calc-btn" id="generateReport">📋 Generar Reporte</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>🔥 Análisis Específico</h4>
+                    <select id="componentSelect">
+                        <option value="">Seleccionar Componente</option>
+                    </select>
+                    <div class="analysis-buttons">
+                        <button class="calc-btn" id="jouleLawBtn">Ley de Joule</button>
+                        <button class="calc-btn" id="voltageDropsBtn">Caídas de Voltaje</button>
+                        <button class="calc-btn" id="powerAnalysisBtn">Análisis de Potencia</button>
+                        <button class="calc-btn" id="frequencyResponseBtn">Respuesta en Frecuencia</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>🌊 Análisis AC/DC</h4>
+                    <select id="analysisType">
+                        <option value="dc">Análisis DC</option>
+                        <option value="ac">Análisis AC</option>
+                        <option value="transient">Análisis Transitorio</option>
+                    </select>
+                    <input type="number" id="frequency" placeholder="Frecuencia (Hz)" step="0.1" value="60">
+                    <input type="number" id="timeStep" placeholder="Paso de tiempo (ms)" step="0.1" value="1">
+                    <button class="calc-btn" id="advancedAnalysisBtn">Ejecutar Análisis</button>
+                </div>
+
+                <!-- Panel de Resultados -->
+                <div class="results" id="results">
+                    <h5>📈 Resultados de Simulación</h5>
+                    <div id="resultsContent">
+                        <p>Diseña tu circuito y presiona "Simular" para ver los resultados detallados.</p>
+                        <div class="quick-stats" id="quickStats"></div>
+                    </div>
+                </div>
+
+                <!-- Panel de Gráficos -->
+                <div class="charts-container" id="chartsContainer">
+                    <h5>📊 Gráficos y Visualización</h5>
+                    <div class="chart-controls">
+                        <button class="calc-btn" id="showVIChart">Gráfico V-I</button>
+                        <button class="calc-btn" id="showPowerChart">Gráfico de Potencia</button>
+                        <button class="calc-btn" id="showFreqResponse">Respuesta en Frecuencia</button>
+                    </div>
+                    <canvas id="chartCanvas" width="280" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para configuración avanzada -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ Configuración Avanzada</h3>
+                    <span class="close" id="closeModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-group">
+                        <h4>Precisión de Cálculo</h4>
+                        <label>
+                            Tolerancia de Error:
+                            <input type="number" id="errorTolerance" value="0.001" step="0.0001">
+                        </label>
+                        <label>
+                            Máximo de Iteraciones:
+                            <input type="number" id="maxIterations" value="1000" step="10">
+                        </label>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4>Visualización</h4>
+                        <label>
+                            Tamaño de Cuadrícula:
+                            <input type="range" id="gridSize" min="10" max="50" value="20">
+                            <span id="gridSizeDisplay">20px</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="highQualityRendering" checked>
+                            <span>Renderizado de Alta Calidad</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="calc-btn" id="saveSettings">Guardar Configuración</button>
+                    <button class="component-btn" id="resetSettings">Restaurar Valores por Defecto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="utils/solver.js"></script>
+    <script src="components/Component.js"></script>
+    <script src="components/Resistor.js"></script>
+    <script src="components/VoltageSource.js"></script>
+    <script src="components/CurrentSource.js"></script>
+    <script src="components/Capacitor.js"></script>
+    <script src="components/Inductor.js"></script>
+    <script src="components/Diode.js"></script>
+    <script src="components/Wire.js"></script>
+    <script src="components/Ground.js"></script>
+    <script src="components/Circuit.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
